@@ -34,6 +34,9 @@
         --text-md: 1rem;
         --text-sm: 0.875rem;
         --text-xs: 0.78rem;
+        --text-h2: clamp(1.5rem, 3.5vw, 2.2rem);
+        --text-icon: 1.3rem;
+        --text-title: 1.1rem;
         --weight-regular: 400;
         --weight-medium: 500;
         --weight-bold: 700;
@@ -287,11 +290,11 @@
           color-mix(in srgb, var(--color-accent) 30%, transparent),
           color-mix(in srgb, var(--color-accent-2) 30%, transparent)
         );
-        font-size: 1.3rem;
+        font-size: var(--text-icon);
       }
       .card h3 {
         margin: 0 0 var(--space-1);
-        font-size: 1.1rem;
+        font-size: var(--text-title);
         font-weight: var(--weight-bold);
       }
       .card p {
@@ -318,7 +321,7 @@
       }
       .banner h2 {
         margin: 0 0 var(--space-2);
-        font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+        font-size: var(--text-h2);
         font-weight: var(--weight-bold);
         letter-spacing: -0.02em;
       }
