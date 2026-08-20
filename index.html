@@ -3,24 +3,425 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Onboarding Sandbox 1</title>
+    <title>Onboarding Sandbox · 데브칸반</title>
+    <meta
+      name="description"
+      content="가입하면 바로 작업 카드를 만들어 보고, 결과가 오픈소스 커밋으로 남는 데브칸반 온보딩 체험 공간."
+    />
     <style>
-      :root { --bg: #0f1115; --fg: #e8eaed; --accent: #7c9cff; }
-      body {
-        margin: 0; min-height: 100vh;
-        display: grid; place-items: center;
-        font-family: system-ui, sans-serif;
-        background: var(--bg); color: var(--fg);
+      /* ── Design Tokens ───────────────────────────────────────── */
+      :root {
+        /* color */
+        --color-bg: #0b0e14;
+        --color-bg-glow-1: #6d5cff;
+        --color-bg-glow-2: #12b6a8;
+        --color-surface: rgba(255, 255, 255, 0.04);
+        --color-surface-strong: rgba(255, 255, 255, 0.07);
+        --color-border: rgba(255, 255, 255, 0.1);
+        --color-border-strong: rgba(255, 255, 255, 0.18);
+        --color-text: #eef1f8;
+        --color-text-muted: #a4adc4;
+        --color-text-faint: #6f7899;
+        --color-accent: #8a7bff;
+        --color-accent-2: #34e0cf;
+        --color-on-accent: #0b0e14;
+
+        /* typography */
+        --font-sans: "Pretendard", system-ui, -apple-system, "Segoe UI",
+          "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+        --text-hero: clamp(2.4rem, 6vw, 4.2rem);
+        --text-lg: clamp(1.05rem, 2.2vw, 1.3rem);
+        --text-md: 1rem;
+        --text-sm: 0.875rem;
+        --text-xs: 0.78rem;
+        --weight-regular: 400;
+        --weight-medium: 500;
+        --weight-bold: 700;
+        --leading-tight: 1.12;
+        --leading-normal: 1.65;
+
+        /* spacing */
+        --space-1: 0.5rem;
+        --space-2: 0.75rem;
+        --space-3: 1rem;
+        --space-4: 1.5rem;
+        --space-5: 2.5rem;
+        --space-6: 4rem;
+        --space-7: 6rem;
+
+        /* radius */
+        --radius-md: 14px;
+        --radius-lg: 22px;
+        --radius-pill: 999px;
+
+        /* shadow */
+        --shadow-card: 0 18px 40px -20px rgba(0, 0, 0, 0.7);
+        --shadow-accent: 0 12px 32px -12px rgba(138, 123, 255, 0.55);
+
+        /* transition */
+        --ease: cubic-bezier(0.22, 1, 0.36, 1);
+        --dur: 0.35s;
       }
-      main { text-align: center; padding: 2rem; }
-      h1 { font-size: 2rem; margin: 0 0 .5rem; }
-      p { color: var(--accent); margin: 0; }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: var(--font-sans);
+        font-size: var(--text-md);
+        line-height: var(--leading-normal);
+        color: var(--color-text);
+        background: var(--color-bg);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+
+      /* Ambient background glow */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        background:
+          radial-gradient(
+            42rem 42rem at 15% -10%,
+            color-mix(in srgb, var(--color-bg-glow-1) 32%, transparent),
+            transparent 60%
+          ),
+          radial-gradient(
+            38rem 38rem at 100% 10%,
+            color-mix(in srgb, var(--color-bg-glow-2) 26%, transparent),
+            transparent 55%
+          );
+        pointer-events: none;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .wrap {
+        width: min(1080px, 100% - 2 * var(--space-4));
+        margin-inline: auto;
+      }
+
+      /* ── Nav ─────────────────────────────────────────────────── */
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-block: var(--space-4);
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        font-weight: var(--weight-bold);
+        letter-spacing: -0.01em;
+      }
+      .brand .dot {
+        width: 0.72rem;
+        height: 0.72rem;
+        border-radius: var(--radius-pill);
+        background: linear-gradient(
+          135deg,
+          var(--color-accent),
+          var(--color-accent-2)
+        );
+        box-shadow: var(--shadow-accent);
+      }
+      .nav-links {
+        display: flex;
+        gap: var(--space-4);
+        color: var(--color-text-muted);
+        font-size: var(--text-sm);
+      }
+      .nav-links a {
+        transition: color var(--dur) var(--ease);
+      }
+      .nav-links a:hover {
+        color: var(--color-text);
+      }
+
+      /* ── Buttons ─────────────────────────────────────────────── */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        padding: var(--space-2) var(--space-4);
+        border-radius: var(--radius-pill);
+        font-size: var(--text-sm);
+        font-weight: var(--weight-medium);
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition:
+          transform var(--dur) var(--ease),
+          box-shadow var(--dur) var(--ease),
+          background var(--dur) var(--ease),
+          border-color var(--dur) var(--ease);
+      }
+      .btn-primary {
+        background: linear-gradient(
+          135deg,
+          var(--color-accent),
+          var(--color-accent-2)
+        );
+        color: var(--color-on-accent);
+        font-weight: var(--weight-bold);
+        box-shadow: var(--shadow-accent);
+      }
+      .btn-primary:hover {
+        transform: translateY(-2px);
+      }
+      .btn-ghost {
+        background: var(--color-surface);
+        border-color: var(--color-border);
+        color: var(--color-text);
+      }
+      .btn-ghost:hover {
+        border-color: var(--color-border-strong);
+        background: var(--color-surface-strong);
+      }
+
+      /* ── Hero ────────────────────────────────────────────────── */
+      .hero {
+        padding-block: var(--space-7) var(--space-6);
+        text-align: center;
+      }
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        padding: var(--space-1) var(--space-3);
+        margin-bottom: var(--space-4);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-pill);
+        background: var(--color-surface);
+        color: var(--color-text-muted);
+        font-size: var(--text-xs);
+        letter-spacing: 0.02em;
+      }
+      .eyebrow .pulse {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: var(--radius-pill);
+        background: var(--color-accent-2);
+        box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent-2) 70%, transparent);
+        animation: pulse 2.4s var(--ease) infinite;
+      }
+      @keyframes pulse {
+        70%,
+        100% {
+          box-shadow: 0 0 0 0.6rem transparent;
+        }
+      }
+      .hero h1 {
+        font-size: var(--text-hero);
+        line-height: var(--leading-tight);
+        font-weight: var(--weight-bold);
+        letter-spacing: -0.03em;
+        margin: 0 auto var(--space-4);
+        max-width: 15ch;
+      }
+      .hero h1 .grad {
+        background: linear-gradient(
+          120deg,
+          var(--color-accent),
+          var(--color-accent-2)
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .hero p {
+        max-width: 46ch;
+        margin: 0 auto var(--space-5);
+        color: var(--color-text-muted);
+        font-size: var(--text-lg);
+      }
+      .cta-row {
+        display: flex;
+        gap: var(--space-3);
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      /* ── Feature cards ───────────────────────────────────────── */
+      .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: var(--space-4);
+        padding-block: var(--space-5);
+      }
+      .card {
+        padding: var(--space-4);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        background: var(--color-surface);
+        box-shadow: var(--shadow-card);
+        transition:
+          transform var(--dur) var(--ease),
+          border-color var(--dur) var(--ease),
+          background var(--dur) var(--ease);
+      }
+      .card:hover {
+        transform: translateY(-4px);
+        border-color: var(--color-border-strong);
+        background: var(--color-surface-strong);
+      }
+      .card .icon {
+        display: grid;
+        place-items: center;
+        width: 2.6rem;
+        height: 2.6rem;
+        margin-bottom: var(--space-3);
+        border-radius: var(--radius-md);
+        background: linear-gradient(
+          135deg,
+          color-mix(in srgb, var(--color-accent) 30%, transparent),
+          color-mix(in srgb, var(--color-accent-2) 30%, transparent)
+        );
+        font-size: 1.3rem;
+      }
+      .card h3 {
+        margin: 0 0 var(--space-1);
+        font-size: 1.1rem;
+        font-weight: var(--weight-bold);
+      }
+      .card p {
+        margin: 0;
+        color: var(--color-text-muted);
+        font-size: var(--text-sm);
+      }
+
+      /* ── CTA banner ──────────────────────────────────────────── */
+      .banner {
+        margin-block: var(--space-6);
+        padding: var(--space-6) var(--space-5);
+        text-align: center;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        background:
+          linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--color-accent) 14%, transparent),
+            color-mix(in srgb, var(--color-accent-2) 12%, transparent)
+          ),
+          var(--color-surface);
+        box-shadow: var(--shadow-card);
+      }
+      .banner h2 {
+        margin: 0 0 var(--space-2);
+        font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+        font-weight: var(--weight-bold);
+        letter-spacing: -0.02em;
+      }
+      .banner p {
+        margin: 0 auto var(--space-4);
+        max-width: 44ch;
+        color: var(--color-text-muted);
+      }
+
+      /* ── Footer ──────────────────────────────────────────────── */
+      .foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+        padding-block: var(--space-5);
+        border-top: 1px solid var(--color-border);
+        color: var(--color-text-faint);
+        font-size: var(--text-xs);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
     </style>
   </head>
   <body>
-    <main>
-      <h1>환영합니다 👋</h1>
-      <p>여기를 카드로 바꿔보세요.</p>
+    <header class="wrap">
+      <nav class="nav">
+        <a class="brand" href="#top">
+          <span class="dot" aria-hidden="true"></span>
+          Onboarding Sandbox
+        </a>
+        <div class="nav-links">
+          <a href="#how">체험 방법</a>
+          <a href="#why">무엇을</a>
+          <a href="https://github.com" rel="noopener">GitHub</a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="wrap" id="top">
+      <section class="hero">
+        <span class="eyebrow">
+          <span class="pulse" aria-hidden="true"></span>
+          데브칸반 온보딩 체험 공간
+        </span>
+        <h1>
+          작업 카드 하나로<br />
+          <span class="grad">코드가 커밋으로</span> 남습니다
+        </h1>
+        <p>
+          가입하면 별도 설정 없이 이 레포에서 바로 카드를 만들어 보고, 결과는
+          오픈소스 커밋으로 기록됩니다. 여러분의 기여는
+          <code>Co-authored-by</code>로 남습니다.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#how">지금 체험하기 →</a>
+          <a class="btn btn-ghost" href="https://github.com" rel="noopener">
+            레포 살펴보기
+          </a>
+        </div>
+      </section>
+
+      <section class="features" id="why" aria-label="특징">
+        <article class="card">
+          <div class="icon" aria-hidden="true">🃏</div>
+          <h3>카드로 시작</h3>
+          <p>"환영 메시지를 바꿔줘" 한 줄이면 충분합니다. 설정은 나중에.</p>
+        </article>
+        <article class="card">
+          <div class="icon" aria-hidden="true">⚡</div>
+          <h3>바로 실행</h3>
+          <p>GitHub와 LLM 키만 연동하면 카드가 곧장 작업으로 이어집니다.</p>
+        </article>
+        <article class="card">
+          <div class="icon" aria-hidden="true">🌱</div>
+          <h3>기여로 등재</h3>
+          <p>완료된 작업은 dev에 반영되고 릴리스 시 main에 병합됩니다.</p>
+        </article>
+      </section>
+
+      <section class="banner" id="how">
+        <h2>바꿔보고 싶은 부분이 있나요?</h2>
+        <p>
+          가장 간단하게는 이 페이지의 문구나 색을 바꿔보세요. Sisyphus Team
+          온보딩 공간에서 첫 카드를 만들면 됩니다.
+        </p>
+        <a class="btn btn-primary" href="https://github.com" rel="noopener">
+          첫 카드 만들기 →
+        </a>
+      </section>
     </main>
+
+    <footer class="wrap">
+      <div class="foot">
+        <span>© 2026 Onboarding Sandbox · Sisyphus Team</span>
+        <span>MIT License · 오픈소스 기여 공간</span>
+      </div>
+    </footer>
   </body>
 </html>
